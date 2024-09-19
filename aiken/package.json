@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@meshsdk/core": "^1.7.6",
+    "cbor": "^9.0.2"
+  }
+}
