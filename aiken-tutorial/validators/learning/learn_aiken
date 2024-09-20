@@ -1,0 +1,115 @@
+use aiken/collection/list
+use aiken/crypto.{VerificationKeyHash}
+use aiken/primitive/string
+use cardano/transaction.{OutputReference, Transaction}
+
+pub type Datum {
+  owner: VerificationKeyHash,
+}
+
+pub type Redeemer {
+  msg: ByteArray,
+}
+
+// validators themselve is allowed parameter, this is provided value only during generation of code and activation of smart contract.
+
+validator hello_world {
+  spend(
+    datum: Option<Datum>,
+    redeemer: Redeemer,
+    _: OutputReference,
+    transaction: Transaction,
+  ) {
+    let must_say_hello = redeemer.msg == "Hello, World!"
+    trace @"redeemer": string.from_bytearray(redeemer.msg)
+
+    expect Some(Datum { owner }) = datum
+
+    let must_be_signed = list.has(transaction.extra_signatories, owner)
+
+    must_say_hello? && must_be_signed?
+  }
+
+  else(_) {
+    fail
+  }
+}
+
+test test_unit_test() {
+  trace @"basic unit test": @"1+1==2"
+  1 + 1 == 2
+}
+
+fn get_head(xs: List<a>) -> Option<a> {
+  when xs is {
+    [] -> None
+    //if empty list return None
+    [head, ..] -> Some(head)
+  }
+  // else return the first element wrapped in "Some", which probably is a option constructor
+}
+
+test learn_option_and_some() {
+  let myList =
+    [1, 2, 3]
+  let myVar = get_head(myList)
+  expect Some(x) = myVar
+  x == 1
+}
+
+test learn_destructuring() {
+  let placeholder_utxo = OutputReference { transaction_id: "", output_index: 0 }
+  let OutputReference { transaction_id: a, output_index: b } = placeholder_utxo
+  a == "" && b == 0
+}
+
+type User {
+  LoggedIn { username: ByteArray }
+  // constructor1
+  Guest
+}
+
+// constructor2
+fn get_name(user: User) -> ByteArray {
+  when user is {
+    LoggedIn { username } -> username
+    Guest -> "Guest user"
+  }
+}
+
+test learn_constructors_and_pattern_matching() {
+  let john = Guest
+  get_name(john) == "Guest user"
+}
+
+test learn_wildcard() {
+  let john = Guest
+  let str =
+    when john is {
+      LoggedIn { .. } -> "account user"
+      _ -> "Guest user"
+    }
+  str == "Guest user"
+}
+
+// upcast and downcast in Aiken refers to the serializing and deserializing of objects
+// into things
+type TestDatum {
+  count: Int,
+}
+
+fn downcast(data: Data) -> String {
+  if data is TestDatum {
+    @"data is of type TestDatum"
+  } else {
+    @"data is known"
+  }
+}
+
+test learn_upcast_downcast() {
+  let datum: TestDatum = TestDatum { count: 1 }
+  let datumData: Data = datum
+  let _str = downcast(datumData)
+  expect myDatum: TestDatum = datumData
+  myDatum.count == 1
+}
