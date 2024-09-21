@@ -46,7 +46,6 @@ const datum = {
   },
 };
 
-// datum gave error
 const datum2 = {
   value: [whitelist, voted, candidates, votes, owner, close_time],
   inline: true
