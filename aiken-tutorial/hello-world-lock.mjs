@@ -30,12 +30,14 @@ const script = {
 };
 
 const owner = resolvePaymentKeyHash((await wallet.getUsedAddresses())[0]);
+const counter = 0
  
 const datum = {
   value: {
     alternative: 0,
-    fields: [owner],
+    fields: [owner, counter],
   },
+  inline: true
 };
  
 const unsignedTx = await new Transaction({ initiator: wallet }).sendLovelace(
@@ -43,7 +45,7 @@ const unsignedTx = await new Transaction({ initiator: wallet }).sendLovelace(
     address: resolvePlutusScriptAddress(script, 0),
     datum,
   },
-  "1000000"
+  "2000000"
 ).build();
  
 const signedTx = await wallet.signTx(unsignedTx);

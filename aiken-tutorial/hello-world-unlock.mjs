@@ -31,7 +31,7 @@ const script = {
 };
  
 async function fetchUtxo(addr) {
-  const utxos = await blockchainProvider.fetchAddressUTxOs(addr); // retrieves auu utxos from the deployed smart contract
+  const utxos = await blockchainProvider.fetchAddressUTxOs(addr); // retrieves all utxos from the deployed smart contract
   return utxos.find((utxo) => {
     return utxo.input.txHash == process.argv[2]; // utxos are uniquely identifiable from transaction hash
   });
@@ -42,10 +42,11 @@ const utxo = await fetchUtxo(resolvePlutusScriptAddress(script, 0))
 const address = (await wallet.getUsedAddresses())[0]; 
  
 const owner = resolvePaymentKeyHash(address);
+const counter = 1;
  
-const datum = {
+const out_datum = {
   alternative: 0,
-  fields: [owner],
+  fields: [owner, counter],
 };
  
 const redeemer = {
@@ -54,15 +55,22 @@ const redeemer = {
    fields: ['Hello, World!'],
   },
 };
+
+const recipient =  {
+  address: address,
+  datum: {
+    value: out_datum,
+    inline: true
+  }
+}
  
 const unsignedTx = await new Transaction({ initiator: wallet })
   .redeemValue({
     value: utxo,
     script: script,
-    datum: datum,
     redeemer: redeemer,
   })
-  .sendValue(address, utxo)
+  .sendValue(recipient, utxo) //whatever redeemed we sent everything back to the contract
   .setRequiredSigners([address])
   .build();
  
