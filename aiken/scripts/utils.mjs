@@ -5,6 +5,7 @@ import {
   BlockfrostProvider,
   MeshWallet,
   Transaction,
+  mConStr0
 } from '@meshsdk/core';
 
 const voted = [1];
@@ -18,15 +19,15 @@ export function createDatum(owner_key_hash) {
     return {
         value: {
             alternative: 0,
-            fields: [voted, candidates, votes, owner_key_hash, close_time, [owner_key_hash]]
+            fields: [[owner_key_hash], voted, candidates, votes, owner_key_hash, close_time]
         },
-        inline: false
+        inline: true
     };
 }
 
 export function createOutDatum(datum, candidateIndex) {
     const newDatum = { ...datum };
-    const { voted, candidates, votes, owner, close_time, whitelist } = newDatum.value.fields;
+    const { whitelist, voted, candidates, votes, owner_key_hash, close_time} = newDatum.value.fields;
 
     newDatum.value.fields[0] = 1; // Index 0 corresponds to 'voted'
 
@@ -61,4 +62,6 @@ export async function fetchUtxo(addr, blockchainProvider) {
   
     return utxo;
   }
+
+  // console.log(mConStr0([1,2,3]))
   

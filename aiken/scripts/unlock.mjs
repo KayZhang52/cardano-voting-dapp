@@ -5,6 +5,7 @@ import {
   BlockfrostProvider,
   MeshWallet,
   Transaction,
+  value,
 } from '@meshsdk/core';
 import { applyParamsToScript } from "@meshsdk/core-csl";
 import fs from 'node:fs';
@@ -38,26 +39,27 @@ const owner_key_hash = resolvePaymentKeyHash(wallet_address);
  
 const datum = createDatum(owner_key_hash)
 const out_datum = createOutDatum(datum, 0)
-const receiver = createRecipient(out_datum, wallet_address)
+const recipient = createRecipient(out_datum, wallet_address)
  
 const redeemer = {
   data: {
     alternative: 0,
-   fields: ['charizard'],
+    fields: ['charizard'],
   },
 };
- 
-const unsignedTx = await new Transaction({ initiator: wallet })
+
+const unsignedTx = await new Transaction({ initiator: wallet, verbose: true })
   .redeemValue({
     value: utxo,
     script: script,
-    datum: datum.value,
+    // datum: datum.value,
     redeemer: redeemer,
   })
-  .sendValue(receiver, utxo)
+  .setTxRefInputs([utxo])
+  .sendValue(recipient, utxo)
   .setRequiredSigners([wallet_address])
   .build();
- 
+
 const signedTx = await wallet.signTx(unsignedTx, true);
  
 const txHash = await wallet.submitTx(signedTx);
