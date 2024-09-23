@@ -7,3 +7,4 @@ docs/
 # node modules
 aiken/node_modules
 aiken-tutorial/node_modules
+node_modules
